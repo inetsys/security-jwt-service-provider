@@ -58,7 +58,7 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
          * Class for usage custom user provider
          */
         $app['security.jwt.authentication_provider'] = function() use ($app) {
-            return new JWTProvider($app['users']);
+            return new JWTProvider($app['users'], $app['security.jwt']['options']);
         };
 
         $app['security.entry_point.jwt'] = function() use ($app) {

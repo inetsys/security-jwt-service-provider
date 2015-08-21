@@ -1,7 +1,6 @@
 {
-    "name": "cnam/security-jwt-service-provider",
+    "name": "inetsys/security-jwt-service-provider",
     "description": "Service Provider for usage jwt token for auth",
-    "version": "1.0.4",
     "minimum-stability": "stable",
     "authors": [
         {
