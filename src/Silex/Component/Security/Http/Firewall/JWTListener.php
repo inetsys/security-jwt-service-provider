@@ -4,6 +4,7 @@ namespace Silex\Component\Security\Http\Firewall;
 
 use HttpEncodingException;
 use Silex\Component\Security\Core\Encoder\TokenEncoderInterface;
+use Silex\Component\Security\Core\Exception\AuthenticationInvalidCredentialsException;
 use Silex\Component\Security\Http\Token\JWTToken;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
@@ -32,11 +33,15 @@ class JWTListener implements ListenerInterface {
      */
     protected $options;
 
-    public function __construct(TokenStorageInterface $securityContext,
-                                AuthenticationManagerInterface $authenticationManager,
-                                TokenEncoderInterface $encoder,
-                                array $options)
-    {
+    /**
+     * Class constructor
+     *
+     * @param TokenStorageInterface $securityContext
+     * @param AuthenticationManagerInterface $authenticationManager
+     * @param TokenEncoderInterface $encoder
+     * @param array $options
+     */
+    public function __construct(TokenStorageInterface $securityContext, AuthenticationManagerInterface $authenticationManager, TokenEncoderInterface $encoder, array $options){
         $this->securityContext = $securityContext;
         $this->authenticationManager = $authenticationManager;
         $this->encode = $encoder;
@@ -48,8 +53,7 @@ class JWTListener implements ListenerInterface {
      *
      * @param GetResponseEvent $event
      */
-    public function handle(GetResponseEvent $event)
-    {
+    public function handle(GetResponseEvent $event){
         $request = $event->getRequest();
         $requestToken = $this->getToken(
             $request->headers->get($this->options['header_name'], null)
@@ -67,7 +71,9 @@ class JWTListener implements ListenerInterface {
                 $this->securityContext->setToken($authToken);
 
             } catch (HttpEncodingException $e) {
+                throw new AuthenticationInvalidCredentialsException();
             } catch (\UnexpectedValueException $e) {
+                throw new AuthenticationInvalidCredentialsException();
             }
         }
     }
@@ -79,8 +85,7 @@ class JWTListener implements ListenerInterface {
      *
      * @return string
      */
-    protected function getToken($requestToken)
-    {
+    protected function getToken($requestToken){
         if (null === $requestToken && null !== $this->options['token_prefix']) {
             return $requestToken;
         }
